@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<!-- This is based on DillingerLee's great template here:
+https://github.com/Team-Code/KA_Offline -->
+<html> 
+ <head>
+    <title>Processing.JS inside Webpages: Template</title> 
+</head>
+ <body>
+    <p align="center"> 
+	<!--This draws the Canvas on the webpage -->
+      <canvas id="mycanvas"></canvas> 
+    </p>
+ </body>
+ 
+ <!-- Run all the JavaScript stuff -->
+ <!-- Include the processing.js library -->
+ <!-- See https://khanacademy.zendesk.com/hc/en-us/articles/202260404-What-parts-of-ProcessingJS-does-Khan-Academy-support- for differences -->
+ <script src="https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js"></script> 
+ 
+ <script>
+    var sketchProc = function(processingInstance) {
+     with (processingInstance) {
+        size(400, 400); 
+        frameRate(30);
+        
+        // ProgramCodeGoesHere
+
+//Square object declaration
+var cSize =50;
+var Square = function(squareY) {
+    this.height = cSize;
+    this.width = cSize;
+    this.color = color(255, 0, 0);
+    this.squareX = 150;
+    this.squareY = squareY;
+    this.movement = true;
+};
+
+
+
+var squareX = [-50, 401, -50, 401, -50, 401, -50, 401, -50];
+var squareXA = 0;
+var mvmtPlus = true;
+var click = false;
+var squareNum = 0;
+var mSpeed = 2;
+var gameOn = true;
+var level = 0;
+var score = 0;
+var hScore = 0;
+var dif = "";
+var hScoreE = 0;
+var hScoreM = 0;
+var hScoreH = 0;
+var oScreen = true;
+var freeStack = false;
+textFont(createFont("fantasy"));
+var square = [];
+var gameReset = function() {
+    squareNum = 0;
+    squareXA = 0;
+    mSpeed = 2;
+    click = false;
+    square[squareNum].movement = true;
+    for (var i = 1; i < squareX.length + 1; i += 2) {
+        squareX[squareX.length - i] = -50;
+    }
+    for (var i = 2; i < squareX.length + 1; i += 2) {
+        squareX[squareX.length - i] = 401;
+    }    
+};
+var pastSquare = function(sNM) {
+    square[squareNum-sNM].draw(squareX[squareXA-sNM]);
+};
+var difLevel = function() {
+    if (cSize === 25) {
+        dif = "HARD";
+    }
+    if (cSize === 40) {
+        dif = "MEDIUM";
+    }
+    if (cSize === 50) {
+        dif = "EASY";
+    }
+};
+mousePressed = function() {
+    click = true;
+    if (oScreen === true && mouseX > 149 && mouseX < 251 && mouseY > 299 && mouseY < 351) {
+        cSize = 25;
+        gameReset();
+        textSize(12);
+        oScreen = false;
+    }
+    if (oScreen === true && mouseX > 149 && mouseX < 251 && mouseY > 149 && mouseY < 251) {
+        cSize = 50;
+        gameReset();
+        textSize(12);
+        oScreen = false;
+    }
+    if (oScreen === true && mouseX > 149 && mouseX < 251 && mouseY > 224 && mouseY < 376) {
+        cSize = 40;
+        gameReset();
+        textSize(12);
+        oScreen = false;
+    }
+    if (gameOn === false && mouseX > 149 && mouseX < 251 && mouseY > 299 && mouseY < 351) {
+        gameReset();
+        gameOn = true;
+        level = 0;
+    }
+    if (gameOn === false && mouseX > 335 && mouseX < 387 && mouseY > 363 && mouseY < 390) {
+        gameReset();
+        gameOn = true;
+        level = 0;
+        oScreen = true;
+    }
+    if (freeStack === true && mouseX > 14 && mouseX < 66 && mouseY > 15 && mouseY < 46) {
+        freeStack = false;
+    } else if (freeStack === false && mouseX > 14 && mouseX < 66 && mouseY > 15 && mouseY < 46) {
+        freeStack = true;
+    }
+    if (gameOn === true && mouseX > -1 && mouseX < 12.5 && mouseY > 0 && mouseY < 17) {
+        click = false;
+        gameOn = false;
+    }
+    else if (gameOn === false && mouseX > -1 && mouseX < 12.5 && mouseY > 0 && mouseY < 17) {
+        click = false;
+        gameOn = true;
+    }
+};
+Square.prototype.draw = function(squareX) {
+    fill(255, 0, 0);
+    rect(squareX, this.squareY, cSize, cSize);
+    for (var i = 2; i < (cSize / 2); i += 2) {
+        rect(squareX + i, this.squareY + i, cSize - (i * 2), cSize - (i * 2));
+    }
+};
+for (var i = ((400 - cSize) -1); i > -1000; i -= cSize) {
+    square.push(new Square(i));
+}
+draw = function() {
+    square[squareNum].squareY = (399 - cSize * (squareNum + 1)) ;
+    if (score > hScore) {
+        hScore = score;
+    } 
+    score = (squareNum + (level * (400 / cSize)));
+    difLevel();
+    if (oScreen === false) {
+        if (gameOn === true) {
+            background(255, 255, 255);
+            fill(0, 0, 0);
+            textAlign(CENTER, TOP);
+            textSize(15);
+            text("Score: " + (squareNum + (level * (400 / cSize))), 40, 8);
+            text("High Score: " + hScore, 348, 8);
+            text(dif, 200, 8);
+            textAlign(LEFT, BASELINE);
+            textSize(12);
+            noFill();
+            rect(0, 0, 11.5, 16);
+            fill(0, 0, 0);
+            rect(2, 3, 2.5, 10);
+            rect(7, 3, 2.5, 10);
+            square[squareNum].draw(squareX[squareXA]);
+            if (square[squareNum].movement === true) {
+                if (mvmtPlus === true) {
+                    squareX[squareXA] += mSpeed;
+                }
+                if (mvmtPlus === false) {
+                    squareX[squareXA] -= mSpeed;
+                }
+                if (squareX[squareXA] > 400 - cSize) {
+                    mvmtPlus = false;
+                }
+                if (squareX[squareXA] < 0) {
+                    mvmtPlus = true;
+                }
+            }
+            if (click === true) {
+                square[squareNum].movement = false;
+                //square[squareNum].squareX = squareX;
+            }
+    
+            if (square[squareNum].movement === false) {
+                if (squareNum > 0) {
+                    if (freeStack === false) {
+                        if (squareX[squareXA] > squareX[(squareXA - 1)] - cSize &&                                    squareX[squareXA] < squareX[squareXA-1] + cSize) {
+                            squareX[squareNum] = squareX[squareNum - 1];
+                        }
+                    }    
+                }
+                square[squareNum + 1].movement = true;
+                click = false;
+                squareX.push(-50);
+                //println(squareX.length);
+                squareXA ++;
+                squareNum ++;
+                mSpeed += 0.8;
+            }
+            if (squareNum > 0) {
+                for (var i = 1; i < squareNum + 1; i ++) {
+                 pastSquare(i);
+                }
+            }
+    }
+    }
+    if (oScreen === true) {
+        background(255, 255, 255);
+        fill(255, 0, 0);
+        textSize(34);
+        text("STACK GAME", 114, 70);
+        rect(150, 225, 100, 50);
+        rect(150, 300, 100, 50);
+        rect(150, 150, 100, 50);
+        fill(255, 255, 255);
+        textSize(23);
+        text("Easy", 178, 184);
+        text("Medium", 162, 259);
+        text("Hard", 178, 334);
+        textSize(12);
+        fill(255, 0, 0);
+        rect(15, 15, 50, 30);
+        text("Stack Mode", 12, 12);
+        fill(0, 0, 0);
+        if (freeStack === true) {
+            text("Free Form", 16.5, 34.5);
+        } else if (freeStack === false) {
+            text("Rigid", 27, 34.5);
+        }
+        
+    }
+     /*if (squareNum > 5) {
+         for (var i = 10; i < 50; i += 10) {
+             pushMatrix();
+             translate(0, i);
+             popMatrix();
+         }
+     }*/
+    
+    if (squareNum > 0) {
+        if (square[squareNum-1].movement === false) {
+            if (squareX[squareXA-1] < squareX[(squareXA - 2)] - cSize || squareX[squareXA-1] >                    squareX[squareXA-2] + cSize) {
+            gameOn = false;
+            background(0, 0, 0);
+            fill(255, 0, 0);
+            if ((squareNum + (level * (400 / cSize))) > 0){
+                score = (squareNum + (level * (400 / cSize)) - 1);
+                }else if((squareNum + (level * (400 / cSize)) === 0)){
+                    score = (squareNum + (level * (400 / cSize)));
+                }
+            textSize(15);    
+            text("Score: " + score, 9, 18);
+            text("High Score: " + hScore, 310, 18);
+            fill(255, 0, 0);
+            textSize(30);
+            text("Game Over", 135, 175, 132, 100);
+            textSize(15);
+            fill(255, 0, 0);
+            rect(150, 300, 100, 50);
+            /*for (var i = 0; i < 5; i += 2) {
+                rect(150 + i, 300 + i, 100 - (i * 2), 50 - (i * 2));
+            }*/
+            fill(0, 0, 0);
+            textSize(19);
+            text("New Game" , 161, 333);
+            fill(255, 0, 0);
+            rect(336, 364, 50, 25);
+            /*for (var i = 0; i < 4; i += 2) {
+                rect(336 + i, 364 + i, 50 - (i * 2), 25 - (i * 2));
+            }*/
+            fill(0, 0, 0);
+            textSize(15);
+            text("Menu" , 344, 383);
+            textSize(12);
+        }
+    }
+    //if (freeStack === false) {
+        if (((squareNum + 1) * cSize) > 400) {
+            level ++;
+            squareNum = 0;
+            squareXA = 0;
+            click = false;
+            for (var i = 1; i < squareX.length + 1; i += 2) {
+                squareX[squareX.length - i] = -50;
+            }
+            for (var i = 2; i < squareX.length + 1; i += 2) {
+                squareX[squareX.length - i] = 401;
+            }
+            square[squareNum].movement = true;
+        }
+    //}    
+    }
+    
+};
+
+    }};
+
+    // Get the canvas that Processing-js will use
+    var canvas = document.getElementById("mycanvas"); 
+    // Pass the function sketchProc (defined in myCode.js) to Processing's constructor.
+    var processingInstance = new Processing(canvas, sketchProc); 
+ </script>
+
+</html>
